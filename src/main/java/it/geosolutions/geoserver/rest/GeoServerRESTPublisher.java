@@ -3205,5 +3205,28 @@ public class GeoServerRESTPublisher {
     public void postImport(int i) throws Exception {
         importerManager.postImport(i);
     }
+    //创建自定义的数据源
+    public boolean createSproutDatastore(String workspace,
+                                         GSSproutDatastoreEncoder datastoreEncoder) {
+        String sUrl = restURL + "/rest/workspaces/" + workspace + "/datastores/";
+        String xml = datastoreEncoder.toString();
+        String result = HTTPUtils.postXml(sUrl, xml, gsuser, gspass);
+        return result != null;
+    }
+    public boolean publishLayer_sprout(String workspace, String storename, String layername, String srs,
+                                       String defaultStyle) {
+
+        final GSFeatureTypeEncoder fte = new GSFeatureTypeEncoder();
+
+        fte.setProjectionPolicy(ProjectionPolicy.FORCE_DECLARED);
+        fte.addKeyword("features");
+        fte.setTitle(layername);
+        fte.setName(layername);
+        fte.setSRS(srs); // srs=null?"EPSG:4326":srs);
+        final GSLayerEncoder layerEncoder = new GSLayerEncoder();
+        layerEncoder.setDefaultStyle(defaultStyle);
+        return publishDBLayer(workspace, storename, fte, layerEncoder);
+    }
+    //
     
 }
