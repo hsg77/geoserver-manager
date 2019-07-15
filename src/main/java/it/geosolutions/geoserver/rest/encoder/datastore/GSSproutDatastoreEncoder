@@ -1,0 +1,73 @@
+package it.geosolutions.geoserver.rest.encoder.datastore;
+
+import it.geosolutions.geoserver.rest.decoder.RESTDataStore;
+import it.geosolutions.geoserver.rest.encoder.utils.ElementUtils;
+
+
+public class GSSproutDatastoreEncoder extends GSAbstractDatastoreEncoder {
+    static final String TYPE = "SproutDataStore";
+
+    final static boolean DEFAULT_ENABLED = true;
+
+    static final String zookeeper = "node111:2181,node112:2181,node113:2181";
+    static final String gwNamespace = "out_tk_1_2";
+    static final boolean IsSpark = false;
+
+    public GSSproutDatastoreEncoder(String name) {
+        super(name);
+
+        // Set mandatory parameter
+        setType(TYPE);
+        setEnabled(DEFAULT_ENABLED);
+        //
+        setZookeeper(zookeeper);
+        setNamespace(gwNamespace);
+        setIsSpark(IsSpark);
+
+    }
+    public GSSproutDatastoreEncoder(RESTDataStore store) {
+        super(store);
+
+        // Check mandatory parameter validity
+        ensureValidZookeeper(store.getConnectionParameters().get("zookeeper"));
+        ensureValidNamespace(store.getConnectionParameters().get("gwNamespace"));
+    }
+    protected String getValidType() {
+        return TYPE;
+    }
+    //
+    public void setZookeeper(String zookeeper) {
+        ensureValidZookeeper(zookeeper);
+        connectionParameters.set("zookeeper", zookeeper);
+    }
+    public void setNamespace(String gwNamespace) {
+        ensureValidNamespace(gwNamespace);
+        connectionParameters.set("gwNamespace", gwNamespace);
+    }
+    public void setIsSpark(boolean IsSpark) {
+        connectionParameters.set("IsSpark", Boolean.toString(IsSpark));
+    }
+    //
+    public String getZookeeper() {
+        return ElementUtils.contains(connectionParameters.getRoot(), "zookeeper").getTextTrim();
+    }
+    public String getNamespace() {
+        return ElementUtils.contains(connectionParameters.getRoot(), "gwNamespace").getTextTrim();
+    }
+    public boolean getIsSpark() {
+        return Boolean.parseBoolean(ElementUtils.contains(connectionParameters.getRoot(), "IsSpark").getTextTrim());
+    }
+    //
+    private static void ensureValidZookeeper(String Zookeeper) {
+        if (Zookeeper == null || Zookeeper.length() == 0) {
+            throw new IllegalArgumentException(
+                    "Zookeeper cannot be null or empty");
+        }
+    }
+    private static void ensureValidNamespace(String gwNamespace) {
+        if (gwNamespace == null || gwNamespace.length() == 0) {
+            throw new IllegalArgumentException(
+                    "gwNamespace cannot be null or empty");
+        }
+    }
+}
